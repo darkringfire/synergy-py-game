@@ -40,6 +40,7 @@ EMPTY_AIR = 0
 TREE_BONUS = 100
 UPGRADE_PRICE = 1000
 HEAL_PRICE = 500
+BURN_PENALTY = 50
 
 
 class Map:
@@ -89,6 +90,9 @@ class Map:
             for j in range(self.w):
                 if self.cells[i][j] == FIRE:
                     self.cells[i][j] = EMPTY
+                    self.helicopter.score -= BURN_PENALTY
+                    if self.helicopter.score < 0:
+                        self.helicopter.score = 0
         [self.fire_tree() for _ in range(5)]
 
     def generate_forest(self, probability):
@@ -152,3 +156,13 @@ class Map:
 
     def get_heal_price(self):
         return HEAL_PRICE
+
+    def is_water(self, x, y):
+        return self.cells[y][x] == WATER
+
+    def is_fire(self, x, y):
+        return self.cells[y][x] == FIRE
+
+    def douse_fire(self, x, y):
+        self.cells[y][x] = TREE
+        self.helicopter.score += TREE_BONUS
