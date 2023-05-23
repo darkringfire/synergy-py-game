@@ -10,19 +10,21 @@ EMPTY = 0
 HEART = 1
 BUCKET = 2
 
-FILL_DELAY = 0.5
+FILL_DELAY = 1
 UPGRADE_DELAY = 1
 HEAL_DELAY = 1
 
+UPGRADE_PRICE = 1000
+HEAL_PRICE = 500
 
 class Helicopter:
     def __init__(self, map: "Map"):
         self.capacity, self.water = 1, 0
         self.max_health = 10
-        self.health = self.max_health
+        self.health = 3
         self.score = 0
         self.move_x, self.move_y = 0, 0
-        self.speed = 2
+        self.speed = 1
         (
             self.last_step_time,
             self.last_fill_time,
@@ -31,6 +33,9 @@ class Helicopter:
         ) = (0, 0, 0, 0)
         self.map = map
         map.set_helicopter(self)
+
+        self.heal_price = HEAL_PRICE
+        self.upgrade_price = UPGRADE_PRICE
 
     def place(self, x, y):
         self.x, self.y = x, y
@@ -77,20 +82,20 @@ class Helicopter:
         if (
             current_time >= self.last_upgrade_time + UPGRADE_DELAY
             and self.map.is_shop(self.x, self.y)
-            and self.score >= self.map.get_upgrade_price()
+            and self.score >= int(self.upgrade_price)
         ):
-            self.score -= self.map.get_upgrade_price()
-            self.capacity += 1
-            self.speed += 0.1
+            self.score -= int(self.upgrade_price)
+            self.upgrade()
+            self.map.upgrade()
             self.last_upgrade_time = current_time
 
         if (
             current_time >= self.last_heal_time + HEAL_DELAY
             and self.map.is_hospital(self.x, self.y)
-            and self.score >= self.map.get_heal_price()
+            and self.score >= int(self.heal_price)
             and self.health < self.max_health
         ):
-            self.score -= self.map.get_heal_price()
+            self.score -= int(self.heal_price)
             self.health += 1
             self.last_heal_time = current_time
 
@@ -107,7 +112,8 @@ class Helicopter:
         water_str = (ICONS[BUCKET] * self.water) + (
             ICONS[EMPTY] * (self.capacity - self.water)
         )
-        result = f"Health: {health_str} Water: {water_str}  Score: {self.score}\n"
+        result = f"Health: {health_str} Water: {water_str} Speed: {self.speed:.2f} Score: {self.score}\n"
+        result += f"Upgrade price: {int(self.upgrade_price)}\n"
         return result
 
     def hit(self):
@@ -116,3 +122,7 @@ class Helicopter:
 
     def is_dead(self):
         return self.health <= 0
+    def upgrade(self):
+        self.capacity += 1
+        self.speed += 0.1
+        self.upgrade_price *= 1.5

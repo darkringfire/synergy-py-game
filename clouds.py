@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from helicopter import Helicopter
 
-HIT_DELAY = 1
+HIT_DELAY = 5
 UPDATE_DELAY = 10
 
 EMPTY = 0
@@ -21,14 +21,16 @@ class Clouds:
         self.cells = [[EMPTY for _ in range(w)] for _ in range(h)]
         self.update()
         self.last_hit_time, self.last_update_time = 0, 0
+        self.hit_delay = HIT_DELAY
+        self.update_delay = UPDATE_DELAY
 
     def process(self, helicopter: "Helicopter"):
         current_time = time.time()
-        if current_time >= self.last_update_time + UPDATE_DELAY:
+        if current_time >= self.last_update_time + self.update_delay:
             self.update()
             self.last_update_time = current_time
         if (
-            current_time >= self.last_hit_time + HIT_DELAY
+            current_time >= self.last_hit_time + self.hit_delay
             and self.cells[helicopter.y][helicopter.x] == THUNDER
         ):
             self.last_hit_time = current_time
@@ -48,3 +50,7 @@ class Clouds:
                     self.cells[i][j] = CLOUD
                     if rand_bool(thunder_probability):
                         self.cells[i][j] = THUNDER
+    def upgrade(self):
+        # TODO: Implement Clouds upgrade
+        self.hit_delay *= 0.9
+        pass
