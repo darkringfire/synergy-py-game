@@ -1,13 +1,11 @@
 from map import Map
 from helicopter import Helicopter
-from clouds import Clouds
 import time
 import utils
 from pynput import keyboard
 
 MAP_SIZE = 20, 10
 
-# TICK_DELAY = 0.05
 TICK_DELAY = 0.05
 
 map = Map(*MAP_SIZE)

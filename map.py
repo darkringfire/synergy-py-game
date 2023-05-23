@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from helicopter import Helicopter
 
-TILES = "🔲🟩🌳🌊🏥🏭🔥🚁⚪⚡"
+TILES = ["🔲", "🟩", "🌳", "🌊", "🏥" "🏭" "🔥", "🚁", "⚪", "⚡"]
 # TILES = " .T~HS*XO!"
 FRAME = 0
 EMPTY = 1
@@ -124,7 +124,6 @@ class Map:
 
     def render(self):
         screen: str = ""
-        screen += TILES + "\n"
         screen += TILES[FRAME] * (self.w + 2) + "\n"
         for i in range(self.h):
             screen += TILES[FRAME]
@@ -176,4 +175,3 @@ class Map:
         self.grow_tree_n *= 0.9
         self.fires_n *= 1.1
         self.clouds.upgrade()
-
