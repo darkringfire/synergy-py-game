@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from helicopter import Helicopter
 
-TILES = ["🔲", "🟩", "🌳", "🌊", "🏥" "🏭" "🔥", "🚁", "⚪", "⚡"]
+TILES = ["🔲", "🟩", "🌳", "🌊", "🏥", "🏭", "🔥", "🚁", "⚪", "⚡"]
 # TILES = " .T~HS*XO!"
 FRAME = 0
 EMPTY = 1
