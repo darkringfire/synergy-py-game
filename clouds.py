@@ -32,9 +32,7 @@ class Clouds:
             and self.cells[helicopter.y][helicopter.x] == THUNDER
         ):
             self.last_hit_time = current_time
-            helicopter.health -= 1
-            if helicopter.health <= 0:
-                raise Exception("Helicopter died")
+            helicopter.hit()
 
     def is_empty(self, x, y):
         return self.cells[y][x] == EMPTY

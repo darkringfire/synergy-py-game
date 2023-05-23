@@ -109,3 +109,10 @@ class Helicopter:
         )
         result = f"Health: {health_str} Water: {water_str}  Score: {self.score}\n"
         return result
+
+    def hit(self):
+        if self.health > 0:
+            self.health -= 1
+
+    def is_dead(self):
+        return self.health <= 0
