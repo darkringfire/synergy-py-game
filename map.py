@@ -18,12 +18,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from helicopter import Helicopter
 
-TILES = ["🔲", "🟩", "🌳", "🌊", "🏥", "🏭", "🔥", "🚁", "⚪", "⚡"]
+TILES = ["🔲", "🟩", "🟦", "🌳", "🏥", "🏭", "🔥", "🚁", "⚪", "⚡"]
 # TILES = " .T~HS*XO!"
 FRAME = 0
 EMPTY = 1
-TREE = 2
-WATER = 3
+WATER = 2
+TREE = 3
 HOSPITAL = 4
 WORKSHOP = 5
 FIRE = 6
