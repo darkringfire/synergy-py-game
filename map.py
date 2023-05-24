@@ -169,9 +169,9 @@ class Map:
 
     def upgrade(self):
         self.grow_delay *= 1.1
-        self.fire_delay *= 0.9
-        self.tree_bonus *= 1.1
-        self.burn_penalty *= 1.1
+        self.burn_delay *= 0.9
+        self.tree_bonus *= 1.2
+        self.burn_penalty *= 1.5
         self.grow_tree_n *= 0.9
         self.fires_n *= 1.1
         self.clouds.upgrade()

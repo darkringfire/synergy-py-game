@@ -169,6 +169,6 @@ class Helicopter:
 
     def upgrade(self):
         self.capacity += 1
-        self.speed += 0.1
+        self.speed += 0.2
         self.upgrade_price *= 1.5
         self.invincibility_delay *= 0.9
