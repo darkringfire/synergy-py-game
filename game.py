@@ -1,3 +1,4 @@
+import json
 from map import Map
 from helicopter import Helicopter
 import time
@@ -69,6 +70,8 @@ while True:
         utils.cls()
         print("Game paused.")
         print("[Space] to continue [Esc] to quit")
+        if DEBUG:
+            print("Helicopter: " + json.dumps(helicopter.export(), indent=2))
         time.sleep(0.5)
         continue
 

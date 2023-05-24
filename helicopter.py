@@ -219,3 +219,24 @@ class Helicopter:
         self.speed += 0.2
         self.upgrade_price *= 1.5
         self.invincibility_delay *= 0.9
+    
+    def export(self):
+        return {
+            "max_health": self.max_health,
+            "health": self.health,
+            "score": self.score,
+            "capacity": self.capacity,
+            "water": self.water,
+            "speed": self.speed,
+
+            "healing_price": self.healing_price,
+            "upgrade_price": self.upgrade_price,
+
+            "invincibility_delay": self.invincibility_delay,
+            "fill_delay": self.fill_delay,
+            "upgrade_delay": self.upgrade_delay,
+            "heal_delay": self.heal_delay,
+
+            "x": self.x,
+            "y": self.y,
+        }
