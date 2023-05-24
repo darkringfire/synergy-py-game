@@ -1,13 +1,10 @@
 from utils import rand_coord
 from utils import rand_bool
-import time
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
     from map import Map
-
-UPDATE_DELAY = 10
 
 EMPTY = 0
 CLOUD = 1
@@ -20,7 +17,7 @@ class Clouds:
         self.cells = [[EMPTY for _ in range(map.w)] for _ in range(map.h)]
         self.update()
         self.update_time = 0
-        self.update_delay = UPDATE_DELAY
+        self.update_delay = CLOUDS_DELAY
 
     def process(self, helicopter: "Helicopter", tick_time):
         self.update_time += tick_time

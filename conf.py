@@ -23,6 +23,9 @@ FIRES_N = 5
 TREE_BONUS = 100
 BURN_PENALTY = 1
 
+# Clouds init
+CLOUDS_DELAY = 10
+
 # Tiles
 TILES = [
     "🔲",
