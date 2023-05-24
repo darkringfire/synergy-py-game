@@ -19,14 +19,14 @@ class Clouds:
         self.map = map
         self.cells = [[EMPTY for _ in range(map.w)] for _ in range(map.h)]
         self.update()
-        self.last_hit_time, self.last_update_time = 0, 0
+        self.update_time = 0
         self.update_delay = UPDATE_DELAY
 
-    def process(self, helicopter: "Helicopter"):
-        current_time = time.time()
-        if current_time >= self.last_update_time + self.update_delay:
+    def process(self, helicopter: "Helicopter", tick_time):
+        self.update_time += tick_time
+        if self.update_time >= self.update_delay:
             self.update()
-            self.last_update_time = current_time
+            self.update_time = 0
         if self.is_thunder(helicopter.x, helicopter.y):
             helicopter.hit()
 

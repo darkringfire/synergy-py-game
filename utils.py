@@ -1,6 +1,7 @@
 import math
 import os
 import random
+import time
 
 DIRS = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
 
@@ -33,3 +34,8 @@ def progress_bar(total, value, tiles, v_tile, s_tile=0, mul=1):
     result = tiles[v_tile] * math.ceil(value * mul)
     result += tiles[s_tile] * (math.ceil(total * mul) - math.ceil(value * mul))
     return result
+
+
+def tick(last_tick_time):
+    current_time = time.time()
+    return current_time - last_tick_time, current_time

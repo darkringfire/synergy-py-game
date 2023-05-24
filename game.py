@@ -5,6 +5,7 @@ import time
 import utils
 from pynput import keyboard
 from conf import *
+import utils as u
 
 MAP_SIZE = 20, 10
 
@@ -52,8 +53,9 @@ listener = keyboard.Listener(on_press=on_press, on_release=on_release)
 listener.start()
 
 tick = 0
-tick_time = 0
+last_tick_time = time.time()
 while True:
+    loop_start = time.time()
     if stop_game:
         utils.cls()
         print(f"Game stopped. Your score is {helicopter.score}")
@@ -73,15 +75,17 @@ while True:
         if DEBUG:
             print("Helicopter: " + json.dumps(helicopter.export(), indent=2))
         time.sleep(0.5)
+        last_tick_time = time.time()
         continue
 
-    tick_time = time.time()
+    tick_time, last_tick_time = u.tick(last_tick_time)
 
-    map.process()
-    helicopter.process()
+    map.process(tick_time)
+
     screen = ""
     if DEBUG:
         screen += f"Tick: {tick}\n"
+        screen += f"Tick time: {tick_time:.2f}s\n"
         screen += f"{TILES[CLOCK]}{tick * TICK_DELAY:.2f}s\n"
     screen += helicopter.status()
     screen += map.render()
@@ -89,9 +93,9 @@ while True:
     utils.cls()
     print(screen)
 
-    tick_time = time.time() - tick_time
-    if TICK_DELAY - tick_time > 0:
-        time.sleep(TICK_DELAY - tick_time)
+    loop_time = time.time() - loop_start
+    if TICK_DELAY - loop_time > 0:
+        time.sleep(TICK_DELAY - loop_time)
     tick += 1
 
 listener.stop()

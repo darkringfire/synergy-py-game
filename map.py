@@ -125,10 +125,7 @@ class Map:
     def check_bounds(self, x, y):
         return 0 <= y < self.h and 0 <= x < self.w
 
-    def process(self):
-        current_time = time.time()
-        tick_time = current_time - self.last_process_time
-        self.last_process_time = current_time
+    def process(self, tick_time):
         self.burning_time += tick_time
         self.growing_time += tick_time
         if self.burning_time >= self.burn_delay:
@@ -137,7 +134,8 @@ class Map:
         if self.growing_time >= self.grow_delay:
             self.growing_time = 0
             self.grow_trees()
-        self.clouds.process(self.helicopter)
+        self.clouds.process(self.helicopter, tick_time)
+        self.helicopter.process(tick_time)
 
     def is_shop(self, x, y):
         return self.cells[y][x] == WORKSHOP

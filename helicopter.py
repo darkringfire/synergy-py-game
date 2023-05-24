@@ -56,11 +56,7 @@ class Helicopter:
     def set_stop_y(self):
         self.move_y = 0
 
-    def process(self):
-        current_time = time.time()
-        tick_time = current_time - self.last_process_time
-        self.last_process_time = current_time
-
+    def process(self, tick_time):
         self.process_douse()
         self.process_refill(tick_time)
         self.process_upgrade(tick_time)
