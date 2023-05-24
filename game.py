@@ -1,4 +1,5 @@
 import json
+import pprint
 from map import Map
 from helicopter import Helicopter
 import time
@@ -69,10 +70,11 @@ while True:
     if game_paused:
         utils.cls()
         print("Game paused.")
-        print("[Space] to continue [Esc] to quit")
         if DEBUG:
-            print("Helicopter: " + json.dumps(helicopter.export(), indent=2))
-        time.sleep(0.5)
+            pprint.pprint(map.export(), width=100)
+        print("[Space] to continue [Esc] to quit")
+        while game_paused and not game_stoped:
+            time.sleep(0.5)
         last_tick_time = time.time()
         continue
 
