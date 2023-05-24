@@ -1,12 +1,3 @@
-# 🟩🌳🌊🏥🏭🔥🚁🟩🌳🌊🏥🏭🔥🚁🟩🌳🌊🏥🏭🔥🚁
-# 0 - empty
-# 1 - tree
-# 2 - water
-# 3 - hospital
-# 4 - workshop
-# 5 - fire
-# 6 - helicopter
-
 import time
 import utils as u
 from clouds import Clouds
