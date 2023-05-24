@@ -65,24 +65,42 @@ class Helicopter:
         tick_time = current_time - self.last_process_time
         self.last_process_time = current_time
 
-        # Dousing
-        if self.map.is_fire(self.x, self.y) and self.water > 0:
-            self.water -= 1
-            self.map.douse_fire(self.x, self.y)
+        self.process_douse()
+        self.process_refill(tick_time)
+        self.process_upgrade(tick_time)
+        self.process_heal(tick_time)
+        self.process_move(tick_time)
+        self.process_invincible(tick_time)
 
-        # Filling
-        if self.map.is_water(self.x, self.y) and self.water < self.capacity:
-            if self.filling_time < FILL_DELAY:
-                self.filling_time += tick_time
+    def process_invincible(self, tick_time):
+        if self.invincibility_time > 0:
+            self.invincibility_time -= tick_time
+
+    def process_move(self, tick_time):
+        if self.step_time > 0:
+            self.step_time -= tick_time
+        if self.step_time <= 0 and (self.need_to_move()):
+            self.move()
+            self.step_time = 1 / self.speed
+
+    def process_heal(self, tick_time):
+        if (
+            self.map.is_hospital(self.x, self.y)
+            and self.health < self.max_health
+            and self.score >= int(self.healing_price)
+        ):
+            if self.healing_time < self.heal_delay:
+                self.healing_time += tick_time
             else:
-                self.water += 1
-                self.filling_time = 0
+                self.score -= int(self.healing_price)
+                self.health += 1
+                self.healing_time = 0
         else:
-            self.filling_time = 0
+            self.healing_time = 0
 
-        # Upgrading
+    def process_upgrade(self, tick_time):
         if self.map.is_shop(self.x, self.y) and self.score >= int(self.upgrade_price):
-            if self.upgrading_time < UPGRADE_DELAY:
+            if self.upgrading_time < self.upgrade_delay:
                 self.upgrading_time += tick_time
             else:
                 self.score -= int(self.upgrade_price)
@@ -92,31 +110,20 @@ class Helicopter:
         else:
             self.upgrading_time = 0
 
-        # Healing
-        if (
-            self.map.is_hospital(self.x, self.y)
-            and self.health < self.max_health
-            and self.score >= int(self.healing_price)
-        ):
-            if self.healing_time < HEAL_DELAY:
-                self.healing_time += tick_time
+    def process_refill(self, tick_time):
+        if self.map.is_water(self.x, self.y) and self.water < self.capacity:
+            if self.filling_time < self.fill_delay:
+                self.filling_time += tick_time
             else:
-                self.score -= int(self.healing_price)
-                self.health += 1
-                self.healing_time = 0
+                self.water += 1
+                self.filling_time = 0
         else:
-            self.healing_time = 0
+            self.filling_time = 0
 
-        # Moving
-        if self.step_delay > 0:
-            self.step_delay -= tick_time
-        if self.step_delay <= 0 and (self.need_to_move()):
-            self.move()
-            self.step_delay = 1 / self.speed
-
-        # Invincible
-        if self.invincibility_time > 0:
-            self.invincibility_time -= tick_time
+    def process_douse(self):
+        if self.map.is_fire(self.x, self.y) and self.water > 0:
+            self.water -= 1
+            self.map.douse_fire(self.x, self.y)
 
     def need_to_move(self):
         return self.move_x != 0 or self.move_y != 0
