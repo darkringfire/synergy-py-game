@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
+    from map import Map
 
 UPDATE_DELAY = 10
 
@@ -14,10 +15,9 @@ THUNDER = 2
 
 
 class Clouds:
-    def __init__(self, w, h):
-        self.w = w
-        self.h = h
-        self.cells = [[EMPTY for _ in range(w)] for _ in range(h)]
+    def __init__(self, map: "Map"):
+        self.map = map
+        self.cells = [[EMPTY for _ in range(map.w)] for _ in range(map.h)]
         self.update()
         self.last_hit_time, self.last_update_time = 0, 0
         self.update_delay = UPDATE_DELAY
@@ -40,8 +40,8 @@ class Clouds:
         return self.cells[y][x] != EMPTY
 
     def update(self, clouds_probability=0.1, thunder_probability=0.1):
-        for i in range(self.h):
-            for j in range(self.w):
+        for i in range(self.map.h):
+            for j in range(self.map.w):
                 self.cells[i][j] = EMPTY
                 if rand_bool(clouds_probability):
                     self.cells[i][j] = CLOUD

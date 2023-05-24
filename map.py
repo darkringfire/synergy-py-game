@@ -19,8 +19,8 @@ class Map:
         self.generate_river()
         self.grnerate_hospital()
         self.generate_workshop()
-        self.clouds = Clouds(w, h)
         self.helicopter = None
+        self.clouds = Clouds(self)
 
         self.grow_delay = GROW_DELAY
         self.burn_delay = BURN_DELAY
