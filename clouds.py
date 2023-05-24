@@ -55,3 +55,8 @@ class Clouds:
             "update_time": self.update_time,
             "update_delay": self.update_delay,
         }
+
+    def import_(self, data):
+        self.cells = data["cells"]
+        self.update_time = data["update_time"]
+        self.update_delay = data["update_delay"]

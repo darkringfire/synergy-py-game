@@ -11,10 +11,14 @@ MAP_SIZE = 20, 10
 
 TICK_DELAY = 0.05
 
-SAVEFILE = "save.txt"
+SAVEFILE = "save.json"
 
-map = Map(*MAP_SIZE)
-helicopter = map.helicopter
+def init():
+    global map, helicopter
+    map = Map(*MAP_SIZE)
+    helicopter = map.helicopter
+
+init()
 
 game_stoped = False
 game_paused = False
@@ -42,7 +46,9 @@ def on_press(key):
             saver.save(SAVEFILE, map.export())
         elif key == keyboard.Key.f6:
             # TODO Load
-            pass
+            init()
+            map.import_(saver.load(SAVEFILE))
+
 
 
 def on_release(key):

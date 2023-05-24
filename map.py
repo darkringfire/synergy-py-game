@@ -179,3 +179,18 @@ class Map:
             "burning_time": self.burning_time,
             "growing_time": self.growing_time,
         }
+
+    def import_(self, data):
+        self.w = data["w"]
+        self.h = data["h"]
+        self.cells = data["cells"]
+        self.clouds.import_(data["clouds"])
+        self.helicopter.import_(data["helicopter"])
+        self.grow_delay = data["grow_delay"]
+        self.burn_delay = data["burn_delay"]
+        self.tree_bonus = data["tree_bonus"]
+        self.burn_penalty = data["burn_penalty"]
+        self.grow_tree_n = data["grow_tree_n"]
+        self.fires_n = data["fires_n"]
+        self.burning_time = data["burning_time"]
+        self.growing_time = data["growing_time"]

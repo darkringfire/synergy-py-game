@@ -237,3 +237,22 @@ class Helicopter:
             "upgrading_time": self.upgrading_time,
             "healing_time": self.healing_time,
         }
+
+    def import_(self, data):
+        self.max_health = data["max_health"]
+        self.health = data["health"]
+        self.score = data["score"]
+        self.capacity = data["capacity"]
+        self.water = data["water"]
+        self.speed = data["speed"]
+        self.healing_price = data["healing_price"]
+        self.upgrade_price = data["upgrade_price"]
+        self.invincibility_delay = data["invincibility_delay"]
+        self.fill_delay = data["fill_delay"]
+        self.upgrade_delay = data["upgrade_delay"]
+        self.heal_delay = data["heal_delay"]
+        self.x = data["x"]
+        self.y = data["y"]
+        self.filling_time = data["filling_time"]
+        self.upgrading_time = data["upgrading_time"]
+        self.healing_time = data["healing_time"]
