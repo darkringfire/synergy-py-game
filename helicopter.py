@@ -139,7 +139,7 @@ class Helicopter:
         result += self.status_actions()
 
         if DEBUG:
-            result += self.status_debug
+            result += self.status_debug()
 
         return result
 
