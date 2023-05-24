@@ -14,29 +14,10 @@ from utils import get_dir_coords
 from utils import rand_bool
 from clouds import Clouds
 from typing import TYPE_CHECKING
+from conf import *
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
-
-TILES = ["🔲", "🟩", "🟦", "🌳", "🏥", "🏭", "🔥", "🚁", "⚪", "⚡"]
-# TILES = " .T~HS*XO!"
-FRAME = 0
-EMPTY = 1
-WATER = 2
-TREE = 3
-HOSPITAL = 4
-WORKSHOP = 5
-FIRE = 6
-HELICOPTER = 7
-CLOUD = 8
-THUNDER = 9
-
-GROW_DELAY = 5
-GROW_TREE_N = 10
-FIRE_DELAY = 20
-FIRES_N = 5
-TREE_BONUS = 100
-BURN_PENALTY = 1
 
 
 class Map:

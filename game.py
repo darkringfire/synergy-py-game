@@ -3,6 +3,7 @@ from helicopter import Helicopter
 import time
 import utils
 from pynput import keyboard
+from conf import *
 
 MAP_SIZE = 20, 10
 
