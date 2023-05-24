@@ -1,3 +1,4 @@
+import math
 import os
 import random
 
@@ -26,3 +27,9 @@ def rand_coord(w, h):
 
 def cls():
     os.system("cls" if os.name == "nt" else "clear")
+
+
+def progress_bar(total, value, tiles, v_tile, s_tile=0, mul=1):
+    result = tiles[v_tile] * math.ceil(value * mul)
+    result += tiles[s_tile] * (math.ceil(total * mul) - math.ceil(value * mul))
+    return result
