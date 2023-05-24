@@ -38,6 +38,9 @@ class Helicopter:
     def place(self, x, y):
         self.x, self.y = x, y
 
+    def is_on(self, x, y):
+        return self.x == x and self.y == y
+
     def set_move_up(self):
         self.move_y = -1
 

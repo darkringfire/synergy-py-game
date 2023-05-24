@@ -104,10 +104,12 @@ class Map:
             screen += TILES[EMPTY]
             for j in range(self.w):
                 tile = self.cells[i][j]
-                if self.helicopter.x == j and self.helicopter.y == i:
+                if self.clouds.is_cloudy(j, i):
+                    tile = CLOUD
+                elif self.clouds.is_thunder(j, i):
+                    tile = THUNDER
+                elif self.helicopter.is_on(j, i):
                     tile = HELICOPTER
-                if not self.clouds.is_clear(j, i):
-                    tile = tile = CLOUD + self.clouds.cells[i][j] - 1
                 screen += TILES[tile]
             screen += TILES[EMPTY] + "\n"
         screen += TILES[EMPTY] * (self.w + 2) + "\n"
