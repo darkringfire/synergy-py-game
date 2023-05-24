@@ -48,3 +48,10 @@ class Clouds:
     def upgrade(self):
         # TODO: Implement Clouds upgrade
         pass
+
+    def export(self):
+        return {
+            "cells": self.cells,
+            "update_time": self.update_time,
+            "update_delay": self.update_delay,
+        }

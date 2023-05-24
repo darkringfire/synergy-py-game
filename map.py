@@ -30,7 +30,6 @@ class Map:
         self.fires_n = FIRES_N
 
         self.burning_time, self.growing_time = BURN_DELAY, 0
-        self.last_process_time = time.time()
 
     def generate_river(self, length=None):
         if length is None:
@@ -163,3 +162,20 @@ class Map:
         self.grow_tree_n *= 0.9
         self.fires_n *= 1.1
         self.clouds.upgrade()
+
+    def export(self):
+        return {
+            "w": self.w,
+            "h": self.h,
+            "cells": self.cells,
+            "clouds": self.clouds.export(),
+            "helicopter": self.helicopter.export(),
+            "grow_delay": self.grow_delay,
+            "burn_delay": self.burn_delay,
+            "tree_bonus": self.tree_bonus,
+            "burn_penalty": self.burn_penalty,
+            "grow_tree_n": self.grow_tree_n,
+            "fires_n": self.fires_n,
+            "burning_time": self.burning_time,
+            "growing_time": self.growing_time,
+        }

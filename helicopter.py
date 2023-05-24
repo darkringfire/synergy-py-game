@@ -24,7 +24,6 @@ class Helicopter:
         self.heal_delay = HEAL_DELAY
 
         self.move_x, self.move_y = 0, 0
-        self.last_process_time = time.time()
         self.invincibility_time = self.invincibility_delay
         self.step_time = 0
         self.filling_time = 0
@@ -234,4 +233,7 @@ class Helicopter:
             "heal_delay": self.heal_delay,
             "x": self.x,
             "y": self.y,
+            "filling_time": self.filling_time,
+            "upgrading_time": self.upgrading_time,
+            "healing_time": self.healing_time,
         }
