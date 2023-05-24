@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING
 from conf import *
 
 
-if TYPE_CHECKING:
-    from helicopter import Helicopter
+from helicopter import Helicopter
 
 
 class Map:
@@ -19,8 +18,9 @@ class Map:
         self.generate_river()
         self.grnerate_hospital()
         self.generate_workshop()
-        self.helicopter = None
         self.clouds = Clouds(self)
+        self.helicopter = Helicopter(self)
+        self.helicopter.place(*u.rand_coord(self.w, self.h))
 
         self.grow_delay = GROW_DELAY
         self.burn_delay = BURN_DELAY
@@ -31,10 +31,6 @@ class Map:
 
         self.burning_time, self.growing_time = BURN_DELAY, 0
         self.last_process_time = time.time()
-
-    def set_helicopter(self, helicopter: "Helicopter"):
-        self.helicopter = helicopter
-        helicopter.place(*u.rand_coord(self.w, self.h))
 
     def generate_river(self, length=None):
         if length is None:

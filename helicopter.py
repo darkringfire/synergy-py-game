@@ -34,7 +34,6 @@ class Helicopter:
         self.x, self.y = 0, 0
 
         self.map = map
-        map.set_helicopter(self)
 
     def place(self, x, y):
         self.x, self.y = x, y

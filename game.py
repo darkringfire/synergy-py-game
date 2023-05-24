@@ -11,7 +11,7 @@ MAP_SIZE = 20, 10
 TICK_DELAY = 0.05
 
 map = Map(*MAP_SIZE)
-helicopter = Helicopter(map)
+helicopter = map.helicopter
 
 stop_game = False
 pause_game = False
