@@ -8,26 +8,30 @@ if TYPE_CHECKING:
 
 class Helicopter:
     def __init__(self, map: "Map"):
-        self.capacity, self.water = 1, 0
-        self.max_health = 10
-        self.health = 3
-        self.score = 0
-        self.move_x, self.move_y = 0, 0
-        self.speed = 1
-
-        self.map = map
-        map.set_helicopter(self)
-        self.last_process_time = time.time()
+        self.capacity, self.water = CAPACITY, START_WATER
+        self.max_health = MAX_HEALTH
+        self.health = START_HEALTH
+        self.score = START_SCORE
+        self.speed = SPEED
 
         self.healing_price = HEAL_PRICE
         self.upgrade_price = UPGRADE_PRICE
-        self.invincibility_delay = INVINCIBILITY_DELAY
 
+        self.invincibility_delay = INVINCIBILITY_DELAY
+        self.fill_delay = FILL_DELAY
+        self.upgrade_delay = UPGRADE_DELAY
+        self.heal_delay = HEAL_DELAY
+
+        self.move_x, self.move_y = 0, 0
+        self.last_process_time = time.time()
         self.invincibility_time = self.invincibility_delay
-        self.step_delay = 0
+        self.step_time = 0
         self.filling_time = 0
         self.upgrading_time = 0
         self.healing_time = 0
+
+        self.map = map
+        map.set_helicopter(self)
 
     def place(self, x, y):
         self.x, self.y = x, y
