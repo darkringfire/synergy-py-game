@@ -73,7 +73,7 @@ class Helicopter:
             self.map.douse_fire(self.x, self.y)
 
     def process_refill(self, tick_time):
-        if self.map.is_water(self.x, self.y) and self.water < self.capacity:
+        if self.map.is_river(self.x, self.y) and self.water < self.capacity:
             if self.filling_time < self.fill_delay:
                 self.filling_time += tick_time
             else:

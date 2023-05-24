@@ -42,7 +42,7 @@ class Map:
         x, y = u.rand_coord(self.w, self.h)
         direction = u.rand_dir()
         while length > 0:
-            self.cells[y][x] = WATER
+            self.cells[y][x] = RIVER
             dx, dy = u.get_dir_coords(direction)
             if self.check_bounds(x + dx, y + dy):
                 length -= 1
@@ -149,8 +149,8 @@ class Map:
     def is_hospital(self, x, y):
         return self.cells[y][x] == HOSPITAL
 
-    def is_water(self, x, y):
-        return self.cells[y][x] == WATER
+    def is_river(self, x, y):
+        return self.cells[y][x] == RIVER
 
     def is_fire(self, x, y):
         return self.cells[y][x] == FIRE
