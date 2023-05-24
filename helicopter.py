@@ -5,21 +5,6 @@ from conf import *
 if TYPE_CHECKING:
     from map import Map
 
-ICONS = ["🔲", "💖", "🧱", "💧"]
-IVONS = ".*#"
-EMPTY = 0
-HEART = 1
-SHIELD = 2
-WATER = 3
-
-FILL_DELAY = 1
-UPGRADE_DELAY = 1
-HEAL_DELAY = 1
-INVINCIBILITY_DELAY = 5
-
-UPGRADE_PRICE = 1000
-HEAL_PRICE = 500
-
 
 class Helicopter:
     def __init__(self, map: "Map"):
