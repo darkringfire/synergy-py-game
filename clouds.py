@@ -1,6 +1,6 @@
-from utils import rand_coord
 from utils import rand_bool
 from typing import TYPE_CHECKING
+from conf import *
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
