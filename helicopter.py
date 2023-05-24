@@ -9,10 +9,10 @@ if TYPE_CHECKING:
 
 class Helicopter:
     def __init__(self, map: "Map"):
-        self.capacity, self.water = CAPACITY, START_WATER
         self.max_health = MAX_HEALTH
         self.health = START_HEALTH
         self.score = START_SCORE
+        self.capacity, self.water = CAPACITY, START_WATER
         self.speed = SPEED
 
         self.healing_price = HEAL_PRICE
@@ -30,6 +30,8 @@ class Helicopter:
         self.filling_time = 0
         self.upgrading_time = 0
         self.healing_time = 0
+
+        self.x, self.y = 0, 0
 
         self.map = map
         map.set_helicopter(self)
