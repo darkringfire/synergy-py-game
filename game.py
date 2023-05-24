@@ -14,8 +14,8 @@ TICK_DELAY = 0.05
 map = Map(*MAP_SIZE)
 helicopter = map.helicopter
 
-stop_game = False
-pause_game = False
+game_stoped = False
+game_paused = False
 
 
 def on_press(key):
@@ -30,25 +30,23 @@ def on_press(key):
             helicopter.set_move_right()
     else:
         if key == keyboard.Key.esc:
-            global stop_game
-            stop_game = True
+            global game_stoped
+            game_stoped = True
         elif key == keyboard.Key.space:
-            global pause_game
-            pause_game = not pause_game
+            global game_paused
+            game_paused = not game_paused
 
 
 def on_release(key):
     global move_x, move_y
-    try:
+    if type(key) == keyboard.KeyCode:
         if key.char in ["a", "d"]:
             helicopter.set_stop_x()
         elif key.char in ["w", "s"]:
             helicopter.set_stop_y()
-    except AttributeError:
-        pass
 
 
-listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+listener = keyboard.Listener(on_press=on_press, on_release=on_release, suppress=True)
 
 listener.start()
 
@@ -56,7 +54,7 @@ tick = 0
 last_tick_time = time.time()
 while True:
     loop_start = time.time()
-    if stop_game:
+    if game_stoped:
         utils.cls()
         print(f"Game stopped. Your score is {helicopter.score}")
         break
@@ -68,7 +66,7 @@ while True:
         time.sleep(0.5)
         continue
 
-    if pause_game:
+    if game_paused:
         utils.cls()
         print("Game paused.")
         print("[Space] to continue [Esc] to quit")
