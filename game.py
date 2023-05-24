@@ -77,9 +77,9 @@ while True:
     map.process()
     helicopter.process()
     screen = ""
-    screen += f"Tick: {tick}\n"
-    screen += f"{tick * TICK_DELAY:.2f}s\n"
-    screen += helicopter.print()
+    if DEBUG:
+        screen += f"Tick: {tick}\n"
+        screen += f"{TILES[CLOCK]}{tick * TICK_DELAY:.2f}s\n"
     screen += helicopter.status()
     screen += map.render()
     screen += "[W/A/S/D] to move [Esc] to quit [Space] to pause\n"
