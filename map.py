@@ -8,13 +8,11 @@
 # 6 - helicopter
 
 import time
-from utils import rand_coord
-from utils import rand_dir
-from utils import get_dir_coords
-from utils import rand_bool
+import utils as u
 from clouds import Clouds
 from typing import TYPE_CHECKING
 from conf import *
+
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
@@ -24,7 +22,7 @@ class Map:
     def __init__(self, w, h):
         self.w = w
         self.h = h
-        self.cells = [[EMPTY for _ in range(w)] for _ in range(h)]
+        self.cells = [[GROUND for _ in range(w)] for _ in range(h)]
         self.generate_forest(0.3)
         self.generate_river()
         self.generate_river()
@@ -34,54 +32,55 @@ class Map:
         self.helicopter = None
 
         self.grow_delay = GROW_DELAY
-        self.fire_delay = FIRE_DELAY
+        self.burn_delay = BURN_DELAY
         self.tree_bonus = TREE_BONUS
         self.burn_penalty = BURN_PENALTY
         self.grow_tree_n = GROW_TREE_N
         self.fires_n = FIRES_N
 
-        self.last_fire, self.last_grow = 0, 0
+        self.burning_time, self.growing_time = BURN_DELAY, 0
+        self.last_process_time = time.time()
 
     def set_helicopter(self, helicopter: "Helicopter"):
         self.helicopter = helicopter
-        helicopter.place(*rand_coord(self.w, self.h))
+        helicopter.place(*u.rand_coord(self.w, self.h))
 
     def generate_river(self, length=None):
         if length is None:
             length = (self.w + self.h) // 2
-        x, y = rand_coord(self.w, self.h)
-        direction = rand_dir()
+        x, y = u.rand_coord(self.w, self.h)
+        direction = u.rand_dir()
         while length > 0:
             self.cells[y][x] = WATER
-            dx, dy = get_dir_coords(direction)
+            dx, dy = u.get_dir_coords(direction)
             if self.check_bounds(x + dx, y + dy):
                 length -= 1
                 x, y = x + dx, y + dy
-            direction = rand_dir(direction)
+            direction = u.rand_dir(direction)
 
     def generate_forest(self, probability):
         for i in range(self.h):
             for j in range(self.w):
-                if rand_bool(probability):
+                if u.rand_bool(probability):
                     self.cells[i][j] = TREE
 
     def grnerate_hospital(self):
         while True:
-            x, y = rand_coord(self.w, self.h)
-            if self.cells[y][x] == EMPTY:
+            x, y = u.rand_coord(self.w, self.h)
+            if self.cells[y][x] == GROUND:
                 self.cells[y][x] = HOSPITAL
                 break
 
     def generate_workshop(self):
         while True:
-            x, y = rand_coord(self.w, self.h)
-            if self.cells[y][x] == EMPTY:
+            x, y = u.rand_coord(self.w, self.h)
+            if self.cells[y][x] == GROUND:
                 self.cells[y][x] = WORKSHOP
                 break
 
     def grow_tree(self):
-        x, y = rand_coord(self.w, self.h)
-        if self.cells[y][x] == EMPTY:
+        x, y = u.rand_coord(self.w, self.h)
+        if self.cells[y][x] == GROUND:
             self.cells[y][x] = TREE
 
     def grow_trees(self):
@@ -89,7 +88,7 @@ class Map:
             self.grow_tree()
 
     def fire_tree(self):
-        x, y = rand_coord(self.w, self.h)
+        x, y = u.rand_coord(self.w, self.h)
         if self.cells[y][x] == TREE:
             self.cells[y][x] = FIRE
 
@@ -97,7 +96,7 @@ class Map:
         for i in range(self.h):
             for j in range(self.w):
                 if self.cells[i][j] == FIRE:
-                    self.cells[i][j] = EMPTY
+                    self.cells[i][j] = GROUND
                     self.helicopter.score -= int(self.burn_penalty)
                     if self.helicopter.score < 0:
                         self.helicopter.score = 0
@@ -105,9 +104,17 @@ class Map:
 
     def render(self):
         screen: str = ""
-        screen += TILES[FRAME] * (self.w + 2) + "\n"
+
+        if DEBUG:
+            screen += self.render_debug()
+
+        screen += "\n" + self.render_field()
+        return screen
+
+    def render_field(self):
+        screen = TILES[EMPTY] * (self.w + 2) + "\n"
         for i in range(self.h):
-            screen += TILES[FRAME]
+            screen += TILES[EMPTY]
             for j in range(self.w):
                 tile = self.cells[i][j]
                 if self.helicopter.x == j and self.helicopter.y == i:
@@ -115,8 +122,17 @@ class Map:
                 if self.clouds.is_cloudy(j, i):
                     tile = tile = CLOUD + self.clouds.cells[i][j] - 1
                 screen += TILES[tile]
-            screen += TILES[FRAME] + "\n"
-        screen += TILES[FRAME] * (self.w + 2) + "\n"
+            screen += TILES[EMPTY] + "\n"
+        screen += TILES[EMPTY] * (self.w + 2) + "\n"
+        return screen
+
+    def render_debug(self):
+        # Grow progress
+        screen = u.progress_bar(self.grow_delay, self.growing_time, TILES, TREE)
+        screen += f" ({TILES[GEM]}{int(self.tree_bonus)})\n"
+        # Burn progress
+        screen += u.progress_bar(self.burn_delay, self.burning_time, TILES, FIRE)
+        screen += f" ({TILES[LOSE]}{int(self.burn_penalty)})\n"
         return screen
 
     def check_bounds(self, x, y):
@@ -124,11 +140,15 @@ class Map:
 
     def process(self):
         current_time = time.time()
-        if current_time >= self.last_fire + self.fire_delay:
-            self.last_fire = current_time
+        tick_time = current_time - self.last_process_time
+        self.last_process_time = current_time
+        self.burning_time += tick_time
+        self.growing_time += tick_time
+        if self.burning_time >= self.burn_delay:
+            self.burning_time = 0
             self.update_fire()
-        if current_time >= self.last_grow + self.grow_delay:
-            self.last_grow = current_time
+        if self.growing_time >= self.grow_delay:
+            self.growing_time = 0
             self.grow_trees()
         self.clouds.process(self.helicopter)
 
