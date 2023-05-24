@@ -106,7 +106,7 @@ class Map:
                 tile = self.cells[i][j]
                 if self.helicopter.x == j and self.helicopter.y == i:
                     tile = HELICOPTER
-                if self.clouds.is_cloudy(j, i):
+                if not self.clouds.is_clear(j, i):
                     tile = tile = CLOUD + self.clouds.cells[i][j] - 1
                 screen += TILES[tile]
             screen += TILES[EMPTY] + "\n"

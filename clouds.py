@@ -6,15 +6,15 @@ if TYPE_CHECKING:
     from helicopter import Helicopter
     from map import Map
 
-EMPTY = 0
-CLOUD = 1
-THUNDER = 2
-
 
 class Clouds:
+    EMPTY = 0
+    CLOUD = 1
+    THUNDER = 2
+
     def __init__(self, map: "Map"):
         self.map = map
-        self.cells = [[EMPTY for _ in range(map.w)] for _ in range(map.h)]
+        self.cells = [[Clouds.EMPTY for _ in range(map.w)] for _ in range(map.h)]
         self.update()
         self.update_time = 0
         self.update_delay = CLOUDS_DELAY
@@ -27,23 +27,23 @@ class Clouds:
         if self.is_thunder(helicopter.x, helicopter.y):
             helicopter.hit()
 
-    def is_thunder(self, x, y):
-        return self.cells[y][x] == THUNDER
-
-    def is_empty(self, x, y):
-        return self.cells[y][x] == EMPTY
+    def is_clear(self, x, y):
+        return self.cells[y][x] == Clouds.EMPTY
 
     def is_cloudy(self, x, y):
-        return self.cells[y][x] != EMPTY
+        return self.cells[y][x] == Clouds.CLOUD
+
+    def is_thunder(self, x, y):
+        return self.cells[y][x] == Clouds.THUNDER
 
     def update(self, clouds_probability=0.1, thunder_probability=0.1):
         for i in range(self.map.h):
             for j in range(self.map.w):
-                self.cells[i][j] = EMPTY
+                self.cells[i][j] = Clouds.EMPTY
                 if rand_bool(clouds_probability):
-                    self.cells[i][j] = CLOUD
+                    self.cells[i][j] = Clouds.CLOUD
                     if rand_bool(thunder_probability):
-                        self.cells[i][j] = THUNDER
+                        self.cells[i][j] = Clouds.THUNDER
 
     def upgrade(self):
         # TODO: Implement Clouds upgrade
