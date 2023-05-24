@@ -1,16 +1,17 @@
-import json
 import pprint
 from map import Map
-from helicopter import Helicopter
 import time
 import utils
 from pynput import keyboard
 from conf import *
 import utils as u
+import saver
 
 MAP_SIZE = 20, 10
 
 TICK_DELAY = 0.05
+
+SAVEFILE = "save.txt"
 
 map = Map(*MAP_SIZE)
 helicopter = map.helicopter
@@ -36,6 +37,12 @@ def on_press(key):
         elif key == keyboard.Key.space:
             global game_paused
             game_paused = not game_paused
+        elif key == keyboard.Key.f5:
+            # TODO: Save
+            saver.save(SAVEFILE, map.export())
+        elif key == keyboard.Key.f6:
+            # TODO Load
+            pass
 
 
 def on_release(key):
@@ -72,7 +79,7 @@ while True:
         print("Game paused.")
         if DEBUG:
             pprint.pprint(map.export(), width=100)
-        print("[Space] to continue [Esc] to quit")
+        print("[Space] to continue [F5] to save [F6] to load [Esc] to quit")
         while game_paused and not game_stoped:
             time.sleep(0.5)
         last_tick_time = time.time()
@@ -89,7 +96,7 @@ while True:
         screen += f"{TILES[CLOCK]}{tick * TICK_DELAY:.2f}s\n"
     screen += helicopter.status()
     screen += map.render()
-    screen += "[W/A/S/D] to move [Esc] to quit [Space] to pause\n"
+    screen += "[W/A/S/D] to move [Esc] to quit [Space] to pause [F5] to save [F6] to load\n"
     utils.cls()
     print(screen)
 
