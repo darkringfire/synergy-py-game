@@ -80,6 +80,7 @@ while True:
     screen += f"Tick: {tick}\n"
     screen += f"{tick * TICK_DELAY:.2f}s\n"
     screen += helicopter.print()
+    screen += helicopter.status()
     screen += map.render()
     screen += "[W/A/S/D] to move [Esc] to quit [Space] to pause\n"
     utils.cls()

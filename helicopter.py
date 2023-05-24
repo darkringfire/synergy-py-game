@@ -1,6 +1,7 @@
 import time
 from typing import TYPE_CHECKING
 from conf import *
+import utils as u
 
 if TYPE_CHECKING:
     from map import Map
@@ -128,32 +129,75 @@ class Helicopter:
     def need_to_move(self):
         return self.move_x != 0 or self.move_y != 0
 
-    def print(self):
-        health_icon = ICONS[HEART]
-        if self.invincibility_time > 0:
-            health_icon = ICONS[SHIELD]
-        health_str = health_icon * self.health + (
-            ICONS[EMPTY] * (self.max_health - self.health)
-        )
-        water_str = (ICONS[WATER] * self.water) + (
-            ICONS[EMPTY] * (self.capacity - self.water)
-        )
-        result = f"Health: {health_str} Water: {water_str} Speed: {self.speed:.2f} Score: {self.score}\n"
-        result += f"Upgrade price: {int(self.upgrade_price)} Healing price: {int(self.healing_price)}\n"
-        result += "Invincible: " + "<" * int(self.invincibility_time * 10) + "\n"
-        result += "Action: "
-        if 0 < self.filling_time < FILL_DELAY:
-            result += "Filling: " + "<" * int((FILL_DELAY - self.filling_time) * 10)
-        elif 0 < self.upgrading_time < UPGRADE_DELAY:
-            result += "Upgrading: " + "<" * int(
-                (UPGRADE_DELAY - self.upgrading_time) * 10
+    def status(self):
+        result: str = ""
+        # Score
+        result += self.status_score()
+        # Stats bars
+        bar_len = max(self.max_health, self.capacity)
+        # Health
+        result += self.status_health(bar_len)
+        # Water
+        result += self.status_water(bar_len)
+
+        if DEBUG:
+            result += (
+                "Invincibility: "
+                + u.progress_bar(
+                    self.invincibility_delay,
+                    self.invincibility_time,
+                    TILES,
+                    INVINCIBLE,
+                    mul=2,
+                )
+                + f" (Delay: {self.invincibility_delay:.2f})\n"
             )
-        elif 0 < self.healing_time < HEAL_DELAY:
-            result += "Healing: " + "<" * int((HEAL_DELAY - self.healing_time) * 10)
+
+            result += "Waiting: " + u.progress_bar(
+                1 / self.speed, self.step_time, TILES, HELICOPTER, mul=10
+            )
+            result += f" (Speed: {self.speed:.2f}, delay {1 / self.speed :.2f})\n"
+
+        # Actions
+        if 0 < self.filling_time < self.fill_delay:
+            result += u.progress_bar(
+                self.fill_delay, self.filling_time, TILES, WATER, mul=10
+            )
+        elif 0 < self.upgrading_time < self.upgrade_delay:
+            result += u.progress_bar(
+                self.upgrade_delay, self.upgrading_time, TILES, UPGADE, mul=10
+            )
+        elif 0 < self.healing_time < self.heal_delay:
+            result += u.progress_bar(
+                self.heal_delay, self.healing_time, TILES, HEART, mul=10
+            )
         else:
-            result += "None"
+            result += "Nothing to do"
         result += "\n"
-        result += "Waiting: " + "<" * int(self.step_delay * 10) + "\n"
+        return result
+
+    def status_score(self):
+        return f"{TILES[GEM]}{self.score} \n"
+
+    def status_health(self, bar_len):
+        result = ""
+        health_tile = HEART
+        if self.invincibility_time > 0:
+            health_tile = INVINCIBLE
+        # health_bar = health_tile * self.health
+        # health_bar += TILES[EMPTY] * (self.max_health - self.health)
+        health_bar = u.progress_bar(self.max_health, self.health, TILES, health_tile)
+        result += health_bar + TILES[SPACE] * (bar_len - len(health_bar))
+        result += f" | {TILES[HEART]}: {TILES[GEM]}{int(self.healing_price)}\n"
+        return result
+
+    def status_water(self, bar_len):
+        result = ""
+        water_str = TILES[WATER] * self.water
+        water_str += TILES[EMPTY] * (self.capacity - self.water)
+        result += water_str + TILES[SPACE] * (bar_len - len(water_str))
+        result += f" | {TILES[WATER]}: {TILES[CLOCK]}{self.fill_delay:.2f}s"
+        result += f" | {TILES[UPGADE]}: {TILES[GEM]}{int(self.upgrade_price)}\n"
         return result
 
     def hit(self):
