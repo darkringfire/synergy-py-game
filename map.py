@@ -1,18 +1,14 @@
-import time
 import utils as u
 from clouds import Clouds
-from typing import TYPE_CHECKING
 from conf import *
-
+import numpy as np
 
 from helicopter import Helicopter
 
 
 class Map:
-    def __init__(self, w, h):
-        self.w = w
-        self.h = h
-        self.cells = [[GROUND for _ in range(w)] for _ in range(h)]
+    def __init__(self, size: tuple[int]):
+        self.cells = np.full(size, T.GROUND)
         self.generate_forest(0.3)
         self.generate_river()
         self.generate_river()
@@ -20,111 +16,104 @@ class Map:
         self.generate_workshop()
         self.clouds = Clouds(self)
         self.helicopter = Helicopter(self)
-        self.helicopter.place(*u.rand_coord(self.w, self.h))
 
-        self.grow_delay = GROW_DELAY
-        self.burn_delay = BURN_DELAY
-        self.tree_bonus = TREE_BONUS
-        self.burn_penalty = BURN_PENALTY
-        self.grow_tree_n = GROW_TREE_N
-        self.fires_n = FIRES_N
+        self.apply_level(self.helicopter.level)
+        self.clouds.apply_level(self.helicopter.level)
 
-        self.burning_time, self.growing_time = BURN_DELAY, 0
+        self.burning_time, self.growing_time = self.burn_delay, 0.0
 
     def generate_river(self, length=None):
         if length is None:
-            length = (self.w + self.h) // 2
-        x, y = u.rand_coord(self.w, self.h)
-        direction = u.rand_dir()
+            length = sum(self.cells.shape) // 2
+        coord = u.rand_coord(self.cells.shape)
+        dir = u.rand_dir()
         while length > 0:
-            self.cells[y][x] = RIVER
-            dx, dy = u.get_dir_coords(direction)
-            if self.check_bounds(x + dx, y + dy):
+            self.cells.itemset(coord, T.RIVER)
+            new_coord = u.add_coord(coord, u.dir_coord(dir))
+            if u.check_bounds(new_coord, self.cells.shape):
                 length -= 1
-                x, y = x + dx, y + dy
-            direction = u.rand_dir(direction)
+                coord = new_coord
+            dir = u.rand_dir(dir)
 
     def generate_forest(self, probability):
-        for i in range(self.h):
-            for j in range(self.w):
-                if u.rand_bool(probability):
-                    self.cells[i][j] = TREE
+        for coord in np.ndindex(self.cells.shape):
+            if u.rand_bool(probability):
+                self.cells.itemset(coord, T.TREE)
 
     def grnerate_hospital(self):
-        while True:
-            x, y = u.rand_coord(self.w, self.h)
-            if self.cells[y][x] == GROUND:
-                self.cells[y][x] = HOSPITAL
+        for _ in range(self.cells.size):
+            coord = u.rand_coord(self.cells.shape)
+            if self.is_ground(coord):
+                self.cells.itemset(coord, T.HOSPITAL)
                 break
 
     def generate_workshop(self):
-        while True:
-            x, y = u.rand_coord(self.w, self.h)
-            if self.cells[y][x] == GROUND:
-                self.cells[y][x] = WORKSHOP
+        for _ in range(self.cells.size):
+            coord = u.rand_coord(self.cells.shape)
+            if self.is_ground(coord):
+                self.cells.itemset(coord, T.WORKSHOP)
                 break
 
     def grow_tree(self):
-        x, y = u.rand_coord(self.w, self.h)
-        if self.cells[y][x] == GROUND:
-            self.cells[y][x] = TREE
+        coord = u.rand_coord(self.cells.shape)
+        if self.is_ground(coord):
+            self.cells.itemset(coord, T.TREE)
 
     def grow_trees(self):
-        for _ in range(int(self.grow_tree_n)):
+        for _ in range(self.grow_tree_n):
             self.grow_tree()
 
     def fire_tree(self):
-        x, y = u.rand_coord(self.w, self.h)
-        if self.cells[y][x] == TREE:
-            self.cells[y][x] = FIRE
+        coord = u.rand_coord(self.cells.shape)
+        if self.is_tree(coord):
+            self.cells.itemset(coord, T.FIRE)
 
     def update_fire(self):
-        for i in range(self.h):
-            for j in range(self.w):
-                if self.cells[i][j] == FIRE:
-                    self.cells[i][j] = GROUND
-                    self.helicopter.score -= int(self.burn_penalty)
-                    if self.helicopter.score < 0:
-                        self.helicopter.score = 0
-        [self.fire_tree() for _ in range(int(self.fires_n))]
+        for coord in np.ndindex(self.cells.shape):
+            if self.is_fire(coord):
+                self.cells.itemset(coord, T.GROUND)
+                self.helicopter.score -= self.burn_penalty
+                if self.helicopter.score < 0:
+                    self.helicopter.hit()
+                    self.helicopter.score = 0
+        [self.fire_tree() for _ in range(self.fires_n)]
 
     def render(self):
         screen: str = ""
 
         if DEBUG:
-            screen += self.render_debug()
+            screen += self.status_debug()
 
         screen += "\n" + self.render_field()
         return screen
 
     def render_field(self):
-        screen = TILES[EMPTY] * (self.w + 2) + "\n"
-        for i in range(self.h):
-            screen += TILES[EMPTY]
-            for j in range(self.w):
-                tile = self.cells[i][j]
-                if self.clouds.is_cloudy(j, i):
-                    tile = CLOUD
-                elif self.clouds.is_thunder(j, i):
-                    tile = THUNDER
-                elif self.helicopter.is_on(j, i):
-                    tile = HELICOPTER
-                screen += TILES[tile]
-            screen += TILES[EMPTY] + "\n"
-        screen += TILES[EMPTY] * (self.w + 2) + "\n"
+        w, h = self.cells.shape
+        screen = T.i[T.EMPTY] * (w + 2) + "\n"
+        for y in range(h):
+            screen += T.i[T.EMPTY]
+            for x in range(w):
+                coord = (x, y)
+                tile = self.cells.item(coord)
+                if self.clouds.is_cloudy(coord):
+                    tile = T.CLOUD
+                elif self.clouds.is_thunder(coord):
+                    tile = T.THUNDER
+                elif self.helicopter.is_on(coord):
+                    tile = T.HELICOPTER
+                screen += T.i[tile]
+            screen += T.i[T.EMPTY] + "\n"
+        screen += T.i[T.EMPTY] * (w + 2) + "\n"
         return screen
 
-    def render_debug(self):
+    def status_debug(self):
         # Grow progress
-        screen = u.progress_bar(self.grow_delay, self.growing_time, TILES, TREE)
-        screen += f" ({TILES[GEM]}{int(self.tree_bonus)})\n"
+        screen = u.progress_bar(self.grow_delay, self.growing_time, T.i, T.TREE)
+        screen += f" ({T.i[T.GEM]}{int(self.tree_bonus)})\n"
         # Burn progress
-        screen += u.progress_bar(self.burn_delay, self.burning_time, TILES, FIRE)
-        screen += f" ({TILES[LOSE]}{int(self.burn_penalty)})\n"
+        screen += u.progress_bar(self.burn_delay, self.burning_time, T.i, T.FIRE)
+        screen += f" ({T.i[T.LOSE]}{int(self.burn_penalty)})\n"
         return screen
-
-    def check_bounds(self, x, y):
-        return 0 <= y < self.h and 0 <= x < self.w
 
     def process(self, tick_time):
         self.burning_time += tick_time
@@ -138,59 +127,56 @@ class Map:
         self.clouds.process(self.helicopter, tick_time)
         self.helicopter.process(tick_time)
 
-    def is_shop(self, x, y):
-        return self.cells[y][x] == WORKSHOP
+    def is_ground(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.GROUND
 
-    def is_hospital(self, x, y):
-        return self.cells[y][x] == HOSPITAL
+    def is_tree(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.TREE
 
-    def is_river(self, x, y):
-        return self.cells[y][x] == RIVER
+    def is_shop(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.WORKSHOP
 
-    def is_fire(self, x, y):
-        return self.cells[y][x] == FIRE
+    def is_hospital(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.HOSPITAL
 
-    def douse_fire(self, x, y):
-        self.cells[y][x] = TREE
-        self.helicopter.score += int(self.tree_bonus)
+    def is_river(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.RIVER
 
-    def upgrade(self):
-        self.grow_delay *= 1.1
-        self.burn_delay *= 0.9
-        self.tree_bonus *= 1.2
-        self.burn_penalty *= 1.5
-        self.grow_tree_n *= 0.9
-        self.fires_n *= 1.1
-        self.clouds.upgrade()
+    def is_fire(self, coord: tuple[int, int]):
+        return self.cells.item(coord) == T.FIRE
 
-    def export(self):
+    def douse_fire(self, coord: tuple[int, int]):
+        if self.is_fire(coord):
+            self.cells.itemset(coord, T.TREE)
+            self.helicopter.score += self.tree_bonus
+
+    def apply_level(self, level):
+        self.grow_delay = Params.grow_delay.v(level)
+        self.burn_delay = Params.burn_delay.v(level)
+        self.tree_bonus = Params.tree_bonus.v(level)
+        self.burn_penalty = Params.burn_penalty.v(level)
+        self.grow_tree_n = Params.grow_tree_n.v(level)
+        self.fires_n = Params.fires_n.v(level)
+        self.clouds.apply_level(level)
+
+    # TODO: Implement dump and load
+    def dump(self):
         return {
-            "w": self.w,
-            "h": self.h,
-            "cells": self.cells,
-            "clouds": self.clouds.export(),
-            "helicopter": self.helicopter.export(),
-            "grow_delay": self.grow_delay,
-            "burn_delay": self.burn_delay,
-            "tree_bonus": self.tree_bonus,
-            "burn_penalty": self.burn_penalty,
-            "grow_tree_n": self.grow_tree_n,
-            "fires_n": self.fires_n,
+            "cells": self.cells.tolist(),
+            "clouds": self.clouds.dump(),
+            "helicopter": self.helicopter.dump(),
             "burning_time": self.burning_time,
             "growing_time": self.growing_time,
         }
 
-    def import_(self, data):
-        self.w = data["w"]
-        self.h = data["h"]
-        self.cells = data["cells"]
-        self.clouds.import_(data["clouds"])
-        self.helicopter.import_(data["helicopter"])
-        self.grow_delay = data["grow_delay"]
-        self.burn_delay = data["burn_delay"]
-        self.tree_bonus = data["tree_bonus"]
-        self.burn_penalty = data["burn_penalty"]
-        self.grow_tree_n = data["grow_tree_n"]
-        self.fires_n = data["fires_n"]
+    def load(self, data):
+        self.cells = np.asarray(data["cells"])
+
+        self.helicopter.load(data["helicopter"])
+        self.clouds.load(data["clouds"])
+
         self.burning_time = data["burning_time"]
         self.growing_time = data["growing_time"]
+
+        self.apply_level(self.helicopter.level)
+        self.clouds.apply_level(self.helicopter.level)

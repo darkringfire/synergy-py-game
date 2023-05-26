@@ -1,6 +1,8 @@
-from utils import rand_bool
+import numpy as np
+import utils as u
 from typing import TYPE_CHECKING
-from conf import *
+# from conf import *
+import conf as c
 
 if TYPE_CHECKING:
     from helicopter import Helicopter
@@ -13,50 +15,49 @@ class Clouds:
     THUNDER = 2
 
     def __init__(self, map: "Map"):
-        self.map = map
-        self.cells = [[Clouds.EMPTY for _ in range(map.w)] for _ in range(map.h)]
-        self.update()
+        self.cells = np.full(map.cells.shape, Clouds.EMPTY)
         self.update_time = 0
-        self.update_delay = CLOUDS_DELAY
+        self.update_delay = None
+        self.clouds_probability = None
+        self.thunder_probability = None
 
     def process(self, helicopter: "Helicopter", tick_time):
         self.update_time += tick_time
         if self.update_time >= self.update_delay:
             self.update()
             self.update_time = 0
-        if self.is_thunder(helicopter.x, helicopter.y):
+        if self.is_thunder(helicopter.coord):
             helicopter.hit()
 
-    def is_clear(self, x, y):
-        return self.cells[y][x] == Clouds.EMPTY
+    def is_clear(self, coord):
+        return self.cells.item(coord) == Clouds.EMPTY
 
-    def is_cloudy(self, x, y):
-        return self.cells[y][x] == Clouds.CLOUD
+    def is_cloudy(self, coord):
+        return self.cells.item(coord) == Clouds.CLOUD
 
-    def is_thunder(self, x, y):
-        return self.cells[y][x] == Clouds.THUNDER
+    def is_thunder(self, coord):
+        return self.cells.item(coord) == Clouds.THUNDER
 
-    def update(self, clouds_probability=0.1, thunder_probability=0.1):
-        for i in range(self.map.h):
-            for j in range(self.map.w):
-                self.cells[i][j] = Clouds.EMPTY
-                if rand_bool(clouds_probability):
-                    self.cells[i][j] = Clouds.CLOUD
-                    if rand_bool(thunder_probability):
-                        self.cells[i][j] = Clouds.THUNDER
+    def update(self):
+        for coord in np.ndindex(self.cells.shape):
+            self.cells.itemset(coord, Clouds.EMPTY)
+            if u.rand_bool(self.clouds_probability):
+                self.cells.itemset(coord, Clouds.CLOUD)
+                if u.rand_bool(self.thunder_probability):
+                    self.cells.itemset(coord, Clouds.THUNDER)
 
-    def upgrade(self):
-        # TODO: Implement Clouds upgrade
-        pass
+    def apply_level(self, level):
+        self.update_delay = c.Params.clouds_delay.v(level)
+        self.clouds_probability = c.Params.clouds_probability.v(level)
+        self.thunder_probability = c.Params.thunder_probability.v(level)
 
-    def export(self):
+    # TODO: Implement Saving and loading
+    def dump(self):
         return {
-            "cells": self.cells,
+            "cells": self.cells.tolist(),
             "update_time": self.update_time,
-            "update_delay": self.update_delay,
         }
 
-    def import_(self, data):
-        self.cells = data["cells"]
+    def load(self, data: dict):
+        self.cells = np.asarray(data["cells"])
         self.update_time = data["update_time"]
-        self.update_delay = data["update_delay"]
