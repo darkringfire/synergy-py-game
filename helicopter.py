@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from conf import *
 import utils as u
 
@@ -128,9 +128,9 @@ class Helicopter:
     def need_to_move(self):
         return not u.eq_coord(self.move_coord, (0, 0))
 
-    def status(self):
         result: str = ""
         result += self.status_score()
+    def status(self) -> list[str]:
 
         bar_len = max(self.max_health, self.capacity)
         result += self.status_health(bar_len)
@@ -142,10 +142,10 @@ class Helicopter:
 
         return result
 
-    def status_score(self):
         return f"{T.i[T.LEVEL]}{self.level} {T.i[T.GEM]}{self.score} \n"
+    def status_score(self) -> str:
 
-    def status_actions(self):
+    def status_actions(self) -> str:
         result = ""
         if 0 < self.filling_time < self.fill_delay:
             result += u.progress_bar(
@@ -164,7 +164,6 @@ class Helicopter:
         result += "\n"
         return result
 
-    def status_debug(self):
         result = "Invincibility: "
         result += u.progress_bar(
             self.safe_delay,
@@ -172,6 +171,7 @@ class Helicopter:
             T.i,
             T.SAFE,
             mul=2,
+    def status_debug(self) -> list[str]:
         )
         result += f" (Delay: {self.safe_delay:.2f})\n"
 
@@ -182,7 +182,7 @@ class Helicopter:
         result += f" (Speed: {self.speed:.2f}, delay {1 / self.speed :.2f})\n"
         return result
 
-    def status_health(self, bar_len):
+    def status_health(self, bar_len) -> str:
         result = ""
         health_tile = T.HEART
         if self.safe_time > 0:
@@ -192,7 +192,7 @@ class Helicopter:
         result += f" | {T.i[T.HEART]}: {T.i[T.GEM]}{int(self.healing_price)}\n"
         return result
 
-    def status_water(self, bar_len):
+    def status_water(self, bar_len) -> str:
         result = ""
         water_str = T.i[T.WATER] * self.water
         water_str += T.i[T.EMPTY] * (self.capacity - self.water)
@@ -206,11 +206,11 @@ class Helicopter:
             self.health -= 1
             self.safe_time = self.safe_delay
 
-    def is_dead(self):
+    def is_dead(self) -> bool:
         return self.health <= 0
 
     # TODO: Implement dump and load
-    def dump(self):
+    def dump(self) -> dict[str, Any]:
         return {
             "level": self.level,
             "health": self.health,

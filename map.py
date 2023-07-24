@@ -1,3 +1,4 @@
+from typing import Any
 import utils as u
 from clouds import Clouds
 from conf import *
@@ -78,8 +79,8 @@ class Map:
                     self.helicopter.score = 0
         [self.fire_tree() for _ in range(self.fires_n)]
 
-    def render(self):
         screen: str = ""
+    def render(self) -> list[str]:
 
         if DEBUG:
             screen += self.status_debug()
@@ -87,7 +88,7 @@ class Map:
         screen += "\n" + self.render_field()
         return screen
 
-    def render_field(self):
+    def render_field(self) -> list[str]:
         w, h = self.cells.shape
         screen = T.i[T.EMPTY] * (w + 2) + "\n"
         for y in range(h):
@@ -106,7 +107,7 @@ class Map:
         screen += T.i[T.EMPTY] * (w + 2) + "\n"
         return screen
 
-    def status_debug(self):
+    def status_debug(self) -> list[str]:
         # Grow progress
         screen = u.progress_bar(self.grow_delay, self.growing_time, T.i, T.TREE)
         screen += f" ({T.i[T.GEM]}{int(self.tree_bonus)})\n"
@@ -127,22 +128,22 @@ class Map:
         self.clouds.process(self.helicopter, tick_time)
         self.helicopter.process(tick_time)
 
-    def is_ground(self, coord: tuple[int, int]):
+    def is_ground(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.GROUND
 
-    def is_tree(self, coord: tuple[int, int]):
+    def is_tree(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.TREE
 
-    def is_shop(self, coord: tuple[int, int]):
+    def is_shop(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.WORKSHOP
 
-    def is_hospital(self, coord: tuple[int, int]):
+    def is_hospital(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.HOSPITAL
 
-    def is_river(self, coord: tuple[int, int]):
+    def is_river(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.RIVER
 
-    def is_fire(self, coord: tuple[int, int]):
+    def is_fire(self, coord: tuple[int, int]) -> bool:
         return self.cells.item(coord) == T.FIRE
 
     def douse_fire(self, coord: tuple[int, int]):
@@ -160,7 +161,7 @@ class Map:
         self.clouds.apply_level(level)
 
     # TODO: Implement dump and load
-    def dump(self):
+    def dump(self) -> dict[str, Any]:
         return {
             "cells": self.cells.tolist(),
             "clouds": self.clouds.dump(),
