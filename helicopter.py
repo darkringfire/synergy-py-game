@@ -128,22 +128,25 @@ class Helicopter:
     def need_to_move(self):
         return not u.eq_coord(self.move_coord, (0, 0))
 
-        result: str = ""
-        result += self.status_score()
     def status(self) -> list[str]:
+        result: list[str] = []
+        result.append(self.status_score())
 
         bar_len = max(self.max_health, self.capacity)
-        result += self.status_health(bar_len)
-        result += self.status_water(bar_len)
-        result += self.status_actions()
+        result.append(self.status_health(bar_len))
+        result.append(self.status_water(bar_len))
+        result.append(self.status_actions())
 
         if DEBUG:
-            result += self.status_debug()
+            result.extend(self.status_debug())
 
         return result
 
-        return f"{T.i[T.LEVEL]}{self.level} {T.i[T.GEM]}{self.score} \n"
     def status_score(self) -> str:
+        result = ""
+        result += f"{T.i[T.LEVEL]}{self.level} | {T.i[T.GEM]}{self.score} "
+        result += f" | {T.i[T.UPGRADE]}: {T.i[T.GEM]}{int(self.upgrade_price)}"
+        return result
 
     def status_actions(self) -> str:
         result = ""
@@ -161,25 +164,26 @@ class Helicopter:
             )
         else:
             result += "Nothing to do"
-        result += "\n"
         return result
 
-        result = "Invincibility: "
-        result += u.progress_bar(
-            self.safe_delay,
-            self.safe_time,
-            T.i,
-            T.SAFE,
-            mul=2,
     def status_debug(self) -> list[str]:
+        result = ["Invincibility: "]
+        result.append(
+            u.progress_bar(
+                self.safe_delay,
+                self.safe_time,
+                T.i,
+                T.SAFE,
+                mul=2,
+            )
+            + f" (Delay: {self.safe_delay:.2f})"
         )
-        result += f" (Delay: {self.safe_delay:.2f})\n"
 
-        result += "Waiting: "
-        result += u.progress_bar(
-            1 / self.speed, self.step_time, T.i, T.HELICOPTER, mul=10
+        result.append(
+            "Waiting: "
+            + u.progress_bar(1 / self.speed, self.step_time, T.i, T.HELICOPTER, mul=10)
+            + f" (Speed: {self.speed:.2f}, delay {1 / self.speed :.2f})"
         )
-        result += f" (Speed: {self.speed:.2f}, delay {1 / self.speed :.2f})\n"
         return result
 
     def status_health(self, bar_len) -> str:
@@ -189,7 +193,7 @@ class Helicopter:
             health_tile = T.SAFE
         health_bar = u.progress_bar(self.max_health, self.health, T.i, health_tile)
         result += health_bar + T.i[T.SPACE] * (bar_len - len(health_bar))
-        result += f" | {T.i[T.HEART]}: {T.i[T.GEM]}{int(self.healing_price)}\n"
+        result += f" | {T.i[T.HEART]}: {T.i[T.GEM]}{int(self.healing_price)}"
         return result
 
     def status_water(self, bar_len) -> str:
@@ -198,7 +202,6 @@ class Helicopter:
         water_str += T.i[T.EMPTY] * (self.capacity - self.water)
         result += water_str + T.i[T.SPACE] * (bar_len - len(water_str))
         result += f" | {T.i[T.WATER]}: {T.i[T.CLOCK]}{self.fill_delay:.2f}s"
-        result += f" | {T.i[T.UPGRADE]}: {T.i[T.GEM]}{int(self.upgrade_price)}\n"
         return result
 
     def hit(self):

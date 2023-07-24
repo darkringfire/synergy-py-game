@@ -1,3 +1,4 @@
 # pip freeze
 pynput==1.7.6
 numpy==1.24.3
+Uni-Curses==2.1.3

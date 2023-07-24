@@ -79,20 +79,20 @@ class Map:
                     self.helicopter.score = 0
         [self.fire_tree() for _ in range(self.fires_n)]
 
-        screen: str = ""
     def render(self) -> list[str]:
+        screen: list[str] = []
 
         if DEBUG:
-            screen += self.status_debug()
+            screen.extend(self.status_debug())
 
-        screen += "\n" + self.render_field()
+        screen.extend(self.render_field())
         return screen
 
     def render_field(self) -> list[str]:
         w, h = self.cells.shape
-        screen = T.i[T.EMPTY] * (w + 2) + "\n"
+        screen = [T.i[T.EMPTY] * (w + 2)]
         for y in range(h):
-            screen += T.i[T.EMPTY]
+            row = T.i[T.EMPTY]
             for x in range(w):
                 coord = (x, y)
                 tile = self.cells.item(coord)
@@ -102,18 +102,23 @@ class Map:
                     tile = T.THUNDER
                 elif self.helicopter.is_on(coord):
                     tile = T.HELICOPTER
-                screen += T.i[tile]
-            screen += T.i[T.EMPTY] + "\n"
-        screen += T.i[T.EMPTY] * (w + 2) + "\n"
+                row += T.i[tile]
+            row += T.i[T.EMPTY]
+            screen.append(row)
+        screen.append(T.i[T.EMPTY] * (w + 2))
         return screen
 
     def status_debug(self) -> list[str]:
         # Grow progress
-        screen = u.progress_bar(self.grow_delay, self.growing_time, T.i, T.TREE)
-        screen += f" ({T.i[T.GEM]}{int(self.tree_bonus)})\n"
+        screen = [
+            u.progress_bar(self.grow_delay, self.growing_time, T.i, T.TREE)
+            + f" ({T.i[T.GEM]}{int(self.tree_bonus)})"
+        ]
         # Burn progress
-        screen += u.progress_bar(self.burn_delay, self.burning_time, T.i, T.FIRE)
-        screen += f" ({T.i[T.LOSE]}{int(self.burn_penalty)})\n"
+        screen.append(
+            u.progress_bar(self.burn_delay, self.burning_time, T.i, T.FIRE)
+            + f" ({T.i[T.LOSE]}{int(self.burn_penalty)})"
+        )
         return screen
 
     def process(self, tick_time):
